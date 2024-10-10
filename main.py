@@ -36,18 +36,11 @@ def index():
 
 @app.route('/get-puzzle', methods=['GET'])
 def get_puzzle():
-    global puzzle_data
-    # If puzzle_data is empty or None, fetch a new chunk of puzzles
-    if puzzle_data is None or len(puzzle_data) == 0:
-        puzzle_data = fetch_puzzle_chunk()  # Fetch a new chunk of puzzles
+    puzzle_data = fetch_puzzle_chunk()  # Fetch only a chunk of the data
     
-    if puzzle_data is not None and len(puzzle_data) > 0:
-        # Pick a random puzzle from the current chunk
+    if puzzle_data is not None:
+        # Pick a random puzzle from the chunk of the dataset
         random_puzzle = puzzle_data.sample().iloc[0]
-        
-        # Remove the puzzle from the current chunk so it won't be used again
-        puzzle_data = puzzle_data.drop(random_puzzle.name)
-
         puzzle_response = {
             'PuzzleId': str(random_puzzle['PuzzleId']),
             'FEN': random_puzzle['FEN'],
