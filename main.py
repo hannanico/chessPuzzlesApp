@@ -13,7 +13,7 @@ app = Flask(__name__)
 storage_url = os.getenv("STORAGE_URL")
 puzzle_data = None  # Global variable to store the data in memory
 
-def fetch_puzzles(chunk_size=1000):
+def fetch_puzzles(chunk_size=200):
     global puzzle_data
     response = requests.get(storage_url, stream=True)  # Stream the response to handle large files
     if response.status_code == 200:
