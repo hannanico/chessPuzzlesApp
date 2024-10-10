@@ -1,0 +1,15 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#board {
+    margin: 20px auto;
+    width: 400px;
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px;
+}
