@@ -11,7 +11,16 @@ from flask import Flask, jsonify, render_template
 app = Flask(__name__)
 
 # Load Firebase credentials from the enviromental variable
-firebase_credentials = json.loads(os.getenv('FIREBASE_CREDENTIALS'))
+firebase_credentials_str = json.loads(os.getenv('FIREBASE_CREDENTIALS'))
+
+if not firebase_credentials_str:
+    raise ValueError("FIREBASE_CREDENTIALS environment variable not set or empty.")
+
+# Replace escaped newlines with actual newlines
+firebase_credentials_str = firebase_credentials_str.replace('\\n', '\n')
+
+# Load the credentials from the JSON string
+firebase_credentials = json.loads(firebase_credentials_str)
 
 # Initialize Firebase connection
 cred = credentials.Certificate(firebase_credentials)  # Path to the downloaded JSON file
