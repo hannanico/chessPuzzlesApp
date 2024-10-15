@@ -15,7 +15,7 @@ cred = credentials.Certificate("./firebaseadminsdk.json")
 
 # Initialize Firebase connection
 firebase_admin.initialize_app(cred, {
-    'storageBucket': 'gs://chesspuzzels-5a9ab.appspot.com' 
+    'storageBucket': 'chesspuzzels-5a9ab.appspot.com' 
 })
 
 # Function to load a random puzzle part from Firebase
