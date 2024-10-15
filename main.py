@@ -1,34 +1,36 @@
+import random
+import firebase_admin
+from firebase_admin import credentials, storage
 import pandas as pd
-import requests
 import io
 from flask import Flask, jsonify, render_template
-import os
-from dotenv import load_dotenv
-import random
 
-load_dotenv()
-
+# Initialize the Flask app
 app = Flask(__name__)
 
-storage_url = os.getenv("STORAGE_URL")
+# Initialize Firebase connection
+cred = credentials.Certificate("firebase-adminsdk.json")  # Path to the downloaded JSON file
+firebase_admin.initialize_app(cred, {
+    'storageBucket': 'chesspuzzels-5a9ab.appspot.com'  # Replace with your Firebase bucket name
+})
 
-def fetch_puzzle_chunk(chunk_size=1000):
-    response = requests.get(storage_url, stream=True)
-    if response.status_code == 200:
-        # Stream the response content to avoid loading the entire file into memory
-        csv_data = io.StringIO()
-        for chunk in response.iter_content(chunk_size=1024):
-            if chunk:
-                csv_data.write(chunk.decode('utf-8'))
-                if csv_data.tell() > chunk_size:  # Stop reading after chunk_size characters
-                    break
-        
-        csv_data.seek(0)
-        # Read only the first chunk_size rows from the streamed data
-        puzzle_data = pd.read_csv(csv_data, nrows=chunk_size)
-        return puzzle_data
-    else:
-        return None
+# Function to load a random puzzle part from Firebase
+def load_random_puzzle_part():
+    # Randomly select a part number from the available parts (assuming 500 parts for now)
+    part_number = random.randint(1, 500)
+    part_filename = f'lichess_db_puzzle_part_{part_number}.csv'
+
+    # Fetch the file from Firebase Storage
+    bucket = storage.bucket()
+    blob = bucket.blob(part_filename)
+    data = blob.download_as_text()
+
+    # Load the CSV content into a pandas DataFrame
+    puzzles = pd.read_csv(io.StringIO(data))
+
+    # Select a random puzzle from the part
+    random_puzzle = puzzles.sample().iloc[0]
+    return random_puzzle
 
 @app.route('/')
 def index():
@@ -36,20 +38,21 @@ def index():
 
 @app.route('/get-puzzle', methods=['GET'])
 def get_puzzle():
-    puzzle_data = fetch_puzzle_chunk()  # Fetch only a chunk of the data
-    
-    if puzzle_data is not None:
-        # Pick a random puzzle from the chunk of the dataset
-        random_puzzle = puzzle_data.sample().iloc[0]
+    try:
+        # Load a random puzzle
+        puzzle = load_random_puzzle_part()
+
+        # Prepare the response
         puzzle_response = {
-            'PuzzleId': str(random_puzzle['PuzzleId']),
-            'FEN': random_puzzle['FEN'],
-            'Moves': random_puzzle['Moves'],
-            'Rating': int(random_puzzle['Rating'])  # Convert Rating to int
+            'PuzzleId': str(puzzle['PuzzleId']),
+            'FEN': puzzle['FEN'],
+            'Moves': puzzle['Moves'],
+            'Rating': int(puzzle['Rating'])  # Convert Rating to int
         }
         return jsonify(puzzle_response)
-    else:
-        return jsonify({"error": "Failed to fetch puzzle data."}), 500
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

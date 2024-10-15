@@ -3,6 +3,18 @@ var game = new Chess();
 var solutionMoves = [];
 var userColor = 'white';
 
+function updateSidebar(turn, rating) {
+    document.getElementById('turn-info').textContent = turn === 'w' ? 'Black to move' : 'White to move';
+    document.getElementById('rating-info').textContent = 'Puzzle rating: ' + rating;
+    document.getElementById('move-info').textContent = '';  // Clear any previous move info
+}
+
+function displayInvalidMove() {
+    // Display the invalid move message below the rating
+    document.getElementById('move-info').textContent = 'Invalid move, please try again.';
+}
+
+
 function loadPuzzle() {
     fetch('/get-puzzle')
         .then(response => response.json())
@@ -14,14 +26,17 @@ function loadPuzzle() {
             board.position(data.FEN);
 
             setUserColorFromFEN(data.FEN);
-            
-            // Store solution moves if needed for validation
+
+            // Update sidebar with whose turn and puzzle rating
+            updateSidebar(data.FEN.split(' ')[1], data.Rating);
+
+            // Store solution moves for validation
             solutionMoves = data.Moves.split(' ');
             console.log('Puzzle Moves:', solutionMoves);
 
-            setBoardOrientation();
+            setBoardOrientation();  // Ensure correct orientation for the player's color
 
-            makeMachineMove();
+            makeMachineMove();  // Let the machine make its move if needed
         })
         .catch(error => {
             console.error('Error loading puzzle:', error);
@@ -29,12 +44,11 @@ function loadPuzzle() {
 }
 
 function makeMachineMove() {
-    if(solutionMoves.length > 0){
-        var move = solutionMoves.shift();
-
-        var from = move.substring(0,2);
-        var to = move.substring(2,4);
-        var moveObject = game.move({from, to});
+    if (solutionMoves.length > 0) {
+        var move = solutionMoves.shift();  // Get the next move from the solution
+        var from = move.substring(0, 2);
+        var to = move.substring(2, 4);
+        var moveObject = game.move({ from, to });
 
         if (moveObject === null) {
             console.error('Invalid move by machine:', move);
@@ -46,42 +60,44 @@ function makeMachineMove() {
     }
 }
 
-function validateMove(source,target){
-    var expectedMove = solutionMoves[0];
+function validateMove(source, target) {
+    var expectedMove = solutionMoves[0];  // The next expected move
     var move = source + target;
 
     return move === expectedMove;
 }
 
-function setUserColorFromFEN(fen){
+function setUserColorFromFEN(fen) {
     var parts = fen.split(' ');
     var activeColor = parts[1];
 
-    if(activeColor === 'w'){
-        userColor = 'white';
+    if (activeColor === 'w') {
+        userColor = 'black';  // Player is black, machine moves first
     } else {
-        userColor = 'black';
+        userColor = 'white';  // Player is white, machine is black
     }
 }
 
-function setBoardOrientation(){
-    if(userColor === 'black'){
-        board.orientation('white');
+function setBoardOrientation() {
+    if (userColor === 'black') {
+        board.orientation('black');  // Set board orientation to black
     } else {
-        board.orientation('black');
+        board.orientation('white');  // Set board orientation to white
     }
 }
 
 function onDragStart(source, piece) {
-    // If the user is playing white and tries to move a black piece, block it
-    if (userColor === 'white' && piece.search(/^w/) !== -1) {
-        return false;
+    // Block the user's move if they're trying to move the opponent's pieces
+    if ((userColor === 'white' && piece.search(/^b/) !== -1) || 
+        (userColor === 'black' && piece.search(/^w/) !== -1)) {
+        return false;  // Prevent dragging opponent's pieces
     }
-    // If the user is playing black and tries to move a white piece, block it
-    if (userColor === 'black' && piece.search(/^b/) !== -1) {
-        return false;
-    }
-    // Allow the move otherwise
+
+    document.body.style.overflow = 'hidden';
+}
+
+function ondragend(){
+    document.body.style.overflow = 'auto';
 }
 
 // Initialize the chessboard
@@ -89,36 +105,38 @@ board = Chessboard('myBoard', {
     pieceTheme: '/static/img/{piece}.png',
     draggable: true,
     position: 'start',
-    onDrop: function(source, target) {
-
-        if(!validateMove(source,target)){
+    onDrop: function (source, target) {
+        if (!validateMove(source, target)) {
             console.log('Invalid move');
+            displayInvalidMove();
             return 'snapback';
         }
 
         var move = game.move({
             from: source,
             to: target,
-            promotion: 'q' // Promote to a queen by default
+            promotion: 'q'  // Promote to a queen by default
         });
 
-        if (move === null) return 'snapback'; // Invalid move
+        if (move === null) return 'snapback';  // Invalid move
 
         console.log('Move made:', move);
-
         board.position(game.fen());
-        solutionMoves.shift();
+        solutionMoves.shift();  // Remove the move from the list after making it
 
-        if(solutionMoves.length > 0){
+        // If there are remaining machine moves, let the machine move
+        if (solutionMoves.length > 0) {
             setTimeout(makeMachineMove, 500);
         }
 
-        if(solutionMoves.length === 0){
+        // Load a new puzzle once the current one is solved
+        if (solutionMoves.length === 0) {
             console.log('Puzzle solved!');
             loadPuzzle();
         }
     },
-    onDragStart: onDragStart // Hook the onDragStart event
+    onDragStart: onDragStart,  // Hook the onDragStart event
+    ondragend: ondragend
 });
 
 // Load the first puzzle on page load

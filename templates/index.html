@@ -19,8 +19,16 @@
 <body>
 
     <h1>Chess Puzzle</h1>
-    <div id="myBoard"></div>
-    <button id="newPuzzle">Load New Puzzle</button>
+    <div class="container">
+        <div id="myBoard"></div>
+        <div id="sidebar" class="sidebar">
+            <h3>Puzzle Info</h3>
+            <p><strong>Turn to play:</strong> <span id="turn-info"></span></p>
+            <p><strong>Rating:</strong> <span id="rating-info"></span></p>
+            <p id="move-info"></p> 
+            <button id="newPuzzle">Load New Puzzle</button>
+        </div>
+    </div>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>

@@ -5,11 +5,49 @@ body {
 }
 
 #myBoard {
-    margin: 20px auto;
-    width: 400px;
+    margin: 0;
+    width: 500px;
+    touch-action: none;
+}
+
+.container {
+    display: flex;
+    justify-content: center; /* Center the chessboard + sidebar container horizontally */
+    gap: 20px; /* Spacing between the chessboard and the sidebar */
+    margin: 0 auto; /* Ensure the container itself is centered on the page */
+    padding: 20px;
+}
+
+.sidebar{
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 200px;
+    background-color: #f9f9f9;
+}
+
+.sidebar h3{
+    margin: 0;
 }
 
 button {
     margin-top: 20px;
     padding: 10px;
+}
+
+/* For mobile devices */
+@media (max-width: 767px) {
+    .container {
+        display: block;
+    }
+
+    #myBoard {
+        width: 100%; /* Smaller board for mobile */
+        touch-action: none;
+    }
+
+    .sidebar {
+        margin-top: 20px;
+        width: 100%; /* Sidebar spans full width below the board */
+        padding: 0;
+    }
 }
