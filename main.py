@@ -11,7 +11,7 @@ from flask import Flask, jsonify, render_template
 # Initialize the Flask app
 app = Flask(__name__)
 
-cred = credentials.Certificate("firebaseadminsdk.json")
+cred = credentials.Certificate("./firebaseadminsdk.json")
 
 # Initialize Firebase connection
 firebase_admin.initialize_app(cred, {
