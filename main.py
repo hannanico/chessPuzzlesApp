@@ -19,6 +19,12 @@ firebase_admin.initialize_app(cred, {
     'storageBucket': 'chesspuzzels-5a9ab.appspot.com'
 })
 
+# cred = credentials.Certificate("./firebaseadminsdk.json")
+# # Initialize Firebase connection
+# firebase_admin.initialize_app(cred, {
+#     'storageBucket': 'chesspuzzels-5a9ab.appspot.com' 
+# })
+
 # Function to load a random puzzle part from Firebase
 def load_random_puzzle_part():
     # Randomly select a part number from the available parts (assuming 500 parts for now)
