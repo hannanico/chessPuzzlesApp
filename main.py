@@ -11,12 +11,19 @@ from flask import Flask, jsonify, render_template
 # Initialize the Flask app
 app = Flask(__name__)
 
-cred = credentials.Certificate("./firebaseadminsdk.json")
+firebase_credentials = json.loads(os.getenv('FIREBASE_CREDENTIALS'))
 
-# Initialize Firebase connection
+cred = credentials.Certificate(firebase_credentials)
+
 firebase_admin.initialize_app(cred, {
-    'storageBucket': 'chesspuzzels-5a9ab.appspot.com' 
+    'storageBucket': 'chesspuzzels-5a9ab.appspot.com'
 })
+
+# cred = credentials.Certificate("./firebaseadminsdk.json")
+# # Initialize Firebase connection
+# firebase_admin.initialize_app(cred, {
+#     'storageBucket': 'chesspuzzels-5a9ab.appspot.com' 
+# })
 
 # Function to load a random puzzle part from Firebase
 def load_random_puzzle_part():
