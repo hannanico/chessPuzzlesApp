@@ -2,14 +2,19 @@ import random
 import firebase_admin
 from firebase_admin import credentials, storage
 import pandas as pd
+import json
 import io
+import os
 from flask import Flask, jsonify, render_template
 
 # Initialize the Flask app
 app = Flask(__name__)
 
+# Load Firebase credentials from the enviromental variable
+firebase_credentials = json.loads(os.getenv('FIREBASE_CREDENTIALS'))
+
 # Initialize Firebase connection
-cred = credentials.Certificate("firebase-adminsdk.json")  # Path to the downloaded JSON file
+cred = credentials.Certificate(firebase_credentials)  # Path to the downloaded JSON file
 firebase_admin.initialize_app(cred, {
     'storageBucket': 'chesspuzzels-5a9ab.appspot.com'  # Replace with your Firebase bucket name
 })
