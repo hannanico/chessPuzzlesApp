@@ -11,6 +11,8 @@ from flask import Flask, jsonify, render_template
 # Initialize the Flask app
 app = Flask(__name__)
 
+load_dotenv()
+
 firebase_credentials = json.loads(os.getenv('FIREBASE_CREDENTIALS'))
 
 cred = credentials.Certificate(firebase_credentials)
