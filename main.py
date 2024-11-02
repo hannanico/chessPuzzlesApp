@@ -24,7 +24,7 @@ firebase_admin.initialize_app(cred, {
 # Function to load a random puzzle part from Firebase
 def load_random_puzzle_part():
     # Randomly select a part number from the available parts (assuming 500 parts for now)
-    part_number = random.randint(1, 500)
+    part_number = random.randint(1, 1000)
     part_filename = f'lichess_db_puzzle_part_{part_number}.csv'
 
     # Fetch the file from Firebase Storage
