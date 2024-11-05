@@ -26,7 +26,10 @@ firebase_admin.initialize_app(cred, {
 
 # Function to randomly select and load a chess puzzle from Firebase
 def load_random_puzzle_part():
-    max_attempts = 5  # Define the maximum number of retry attempts
+    #Define the maximum number of retry attempts
+    #I had to do all of this mainly because some of the files were not uploaded to the bucket
+    #Will fix this in the future
+    max_attempts = 5
     attempts = 0
 
     while attempts < max_attempts:
