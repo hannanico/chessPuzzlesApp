@@ -95,11 +95,16 @@ function onDragEnd() {
     document.body.style.overflow = 'auto';
 }
 
+function onSnapEnd() {
+    board.position(game.fen());
+}
+
 // Initialize the chessboard configuration
 board = Chessboard('myBoard', {
     pieceTheme: '/static/img/{piece}.png',
     draggable: true,
     position: 'start',
+    onSnapEnd: onSnapEnd,
     onDrop: function (source, target) {
         if (!validateMove(source, target)) {
             console.log('Invalid move');

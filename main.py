@@ -7,6 +7,7 @@ import json
 import io
 import os
 from flask import Flask, jsonify, render_template
+import time
 
 # Initialize Flask application
 app = Flask(__name__)
@@ -25,19 +26,33 @@ firebase_admin.initialize_app(cred, {
 
 # Function to randomly select and load a chess puzzle from Firebase
 def load_random_puzzle_part():
-    # Choose a random part number and the corresponding file name
-    part_number = random.randint(1, 500)
-    part_filename = f'lichess_db_puzzle_part_{part_number}.csv'
+    max_attempts = 5  # Define the maximum number of retry attempts
+    attempts = 0
 
-    # Connect to Firebase storage and fetch the selected puzzle part file
-    bucket = storage.bucket()
-    blob = bucket.blob(part_filename)
-    data = blob.download_as_text()
+    while attempts < max_attempts:
+        part_number = random.randint(1, 500)  # Randomly select a part number
+        part_filename = f'lichess_db_puzzle_part_{part_number}.csv'
 
-    # Load the CSV data into a DataFrame and randomly select one puzzle
-    puzzles = pd.read_csv(io.StringIO(data))
-    random_puzzle = puzzles.sample().iloc[0]
-    return random_puzzle
+        bucket = storage.bucket()
+        blob = bucket.blob(part_filename)
+
+        # Ensure the file actually exists before attempting to download
+        if blob.exists():
+            try:
+                data = blob.download_as_text()  # Attempt to download the file
+                puzzles = pd.read_csv(io.StringIO(data))  # Load the data into a DataFrame
+                random_puzzle = puzzles.sample().iloc[0]  # Randomly select a puzzle
+                return random_puzzle
+            except Exception as e:
+                print(f"Error processing the puzzle file: {e}")
+                attempts += 1
+                time.sleep(1)  # Wait briefly before retrying
+        else:
+            print(f"File not found: {part_filename}, retrying...")
+            attempts += 1
+            time.sleep(1)  # Wait briefly before retrying
+
+    raise Exception("Failed to load a puzzle after several attempts")
 
 # Define the route for the index page
 @app.route('/')
