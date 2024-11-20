@@ -99,6 +99,19 @@ function onSnapEnd() {
     board.position(game.fen());
 }
 
+function changeBoardTheme(lightColor, darkColor) {
+    const styleElement = document.getElementById('dynamic-board-style');
+    if(!styleElement){
+        const style = document.createElement('style');
+        style.id = 'dynamic-board-style';
+        document.head.appendChild(style);
+    }
+    document.getElementById('dynamic-board-style').innerHTML = `
+        .white-1e1d7 { background-color: ${lightColor} !important; }
+        .black-3c85d { background-color: ${darkColor} !important; }
+    `;
+}
+
 // Initialize the chessboard configuration
 board = Chessboard('myBoard', {
     pieceTheme: '/static/img/{piece}.png',
@@ -141,6 +154,7 @@ board = Chessboard('myBoard', {
 });
 
 // Load the initial puzzle on page load
+changeBoardTheme('#EAE8E7', '#326548');
 loadPuzzle();
 
 // Bind a click event to load a new puzzle
