@@ -6,7 +6,7 @@ var userColor = 'white';
 // Updates the sidebar with current turn, puzzle rating, and clears previous move info
 function updateSidebar(turn, rating) {
     document.getElementById('turn-info').textContent = turn === 'w' ? 'Black to move' : 'White to move';
-    document.getElementById('rating-info').textContent = 'Puzzle rating: ' + rating;
+    document.getElementById('rating-info').textContent = rating;
     document.getElementById('move-info').textContent = '';  // Clear any previous move info
 }
 
@@ -41,22 +41,54 @@ function loadPuzzle() {
         });
 }
 
-// Executes the computer's move from the solution sequence
-function makeMachineMove() {
-    if (solutionMoves.length > 0) {
-        var move = solutionMoves.shift();  // Get the next move
-        var from = move.substring(0, 2);
-        var to = move.substring(2, 4);
-        var moveObject = game.move({ from, to });
+function checkAndLoadNewPuzzle(){
+    if(solutionMoves.length === 0){
+        console.log('Puzzle solved!');
+        setTimeout(loadPuzzle, 600);
+    }
+};
 
-        if (moveObject === null) {
-            console.error('Invalid move by machine:', move);
-        } else {
-            board.position(game.fen());  // Update board to reflect move
-            console.log('Machine made move:', move);
-        }
+function executeMove(move) {
+    var from = move.substring(0, 2);
+    var to = move.substring(2, 4);
+    var moveObject = game.move({ from, to, promotion: 'q' });
+
+    if (moveObject === null) {
+        console.error('Invalid move:', move);
+        return false;
+    } else {
+        board.position(game.fen());  // Update board to reflect move
+        console.log('Move executed:', move);
+        return true;
     }
 }
+
+// Executes the computer's move from the solution sequence
+function makeMachineMove() {
+    if (solutionMoves.length > 0 && executeMove(solutionMoves.shift())) {
+        checkAndLoadNewPuzzle();
+    }
+}
+
+function showNextMove(){
+    if (solutionMoves.length > 0 && executeMove(solutionMoves.shift())) {
+        setTimeout(makeMachineMove, 650); 
+        checkAndLoadNewPuzzle();
+    }
+};
+
+function solvePuzzle(){
+    if(solutionMoves.length > 0){
+       if(executeMove(solutionMoves.shift())){
+            setTimeout(solvePuzzle, 650);
+       }else{
+           console.error('Error solving puzzle');
+       }
+    }else{
+        console.log('Puzzle solved!');
+        checkAndLoadNewPuzzle();
+    }
+};
 
 // Validates the user's move against the expected move
 function validateMove(source, target) {
@@ -144,10 +176,7 @@ board = Chessboard('myBoard', {
         }
 
         // Load a new puzzle when the current one is solved
-        if (solutionMoves.length === 0) {
-            console.log('Puzzle solved!');
-            loadPuzzle();
-        }
+        checkAndLoadNewPuzzle();
     },
     onDragStart: onDragStart,
     onDragEnd: onDragEnd
@@ -159,3 +188,5 @@ loadPuzzle();
 
 // Bind a click event to load a new puzzle
 document.getElementById('newPuzzle').addEventListener('click', loadPuzzle);
+document.getElementById('showNextMove').addEventListener('click', showNextMove);
+document.getElementById('solvePuzzle').addEventListener('click', solvePuzzle);

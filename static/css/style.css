@@ -20,11 +20,17 @@ body {
     padding: 20px;
 }
 
-.sidebar{
-    border: 1px solid #ccc;
+.sidebar {
+    background-color: #141514; /* Dark background for the sidebar */
+    color: white; /* Light color for text for contrast */
     padding: 10px;
+    border: 2px solid #f5deb3; /* Light cream border */
+    box-shadow: 0px 0px 10px 3px rgba(245, 222, 179, 0.5); /* Subtle shadow for depth */
+    border-radius: 10px; /* Rounded corners for a smoother look */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: 200px;
-    background-color: #141514;
 }
 
 .sidebar h3{
@@ -35,6 +41,22 @@ button {
     margin-top: 20px;
     padding: 10px;
 }
+
+.turnInfoP{
+    background-color: #f5deb3; /* Cream background might be too bright, consider a darker shade for contrast */
+    font-weight: bold;
+    color: black; /* Ensuring text color is dark for readability on cream */
+    padding: 10px;
+    border-radius: 5px; /* Optional: adds rounded corners to the background */
+    margin: 10px 0; /* Space above and below */
+}
+
+.ratingInfoP {
+    font-size: 2em; /* Makes the text larger */
+    color: #f5deb3; /* Cream color text */
+    padding: 5px;
+}
+    
 
 /* For mobile devices */
 @media (max-width: 767px) {
