@@ -22,12 +22,24 @@
     <div class="container">
         <div id="myBoard"></div>
         <div id="sidebar" class="sidebar">
+
             <p class="turnInfoP"><span id="turn-info"></span></p>
             <p class="ratingInfoP"><span id="rating-info"></span></p>
             <p id="move-info"></p> 
             <button id="newPuzzle">Load new puzzle</button>
             <button id="showNextMove">Show next move</button>
             <button id="solvePuzzle">Solve puzzle</button>
+
+            <div class="ratingFilter">
+                <label for="ratingMin">Minimum Rating:</label>
+                <input type="number" id="ratingMin" name="ratingMin" placeholder="e.g., 400">
+
+                <label for="ratingMax">Maximum Rating:</label>
+                <input type="number" id="ratingMax" name="ratingMax" placeholder="e.g., 3500">
+
+                <button id="loadRatedPuzzles">Load rated puzzles</button>
+            </div>
+
         </div>
     </div>
 

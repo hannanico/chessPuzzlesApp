@@ -3,6 +3,9 @@ var game = new Chess();
 var solutionMoves = [];
 var userColor = 'white';
 
+var currentMinRating = 400;
+var currentMaxRating = 3500;
+
 // Updates the sidebar with current turn, puzzle rating, and clears previous move info
 function updateSidebar(turn, rating) {
     document.getElementById('turn-info').textContent = turn === 'w' ? 'Black to move' : 'White to move';
@@ -15,9 +18,17 @@ function displayInvalidMove() {
     document.getElementById('move-info').textContent = 'Invalid move, please try again.';
 }
 
+function validateRatingInput(minRating, maxRating){
+    if(minRating < 400 || minRating > 3500 || minRating > maxRating){
+        alert('Please enter a minimum rating of at least 400 and a maximum rating no greater than 3500. The minimum rating must also be less than the maximum rating.');
+        return false;
+    }
+    return true
+}
+
 // Fetches and loads a new puzzle from the server
-function loadPuzzle() {
-    fetch('/get-puzzle')
+function fetchPuzzles(minRating, maxRating) {
+    fetch(`get-puzzle?minRating=${minRating}&maxRating=${maxRating}`)
         .then(response => response.json())
         .then(data => {
             console.log('Puzzle data:', data);
@@ -41,10 +52,19 @@ function loadPuzzle() {
         });
 }
 
+function loadRatedPuzzles(){
+    currentMinRating = document.getElementById('ratingMin').value;
+    currentMaxRating = document.getElementById('ratingMax').value;
+
+    if(validateRatingInput(ratingMin, ratingMax)){
+        fetchPuzzles(currentMinRating, currentMaxRating);
+    }
+};
+
 function checkAndLoadNewPuzzle(){
     if(solutionMoves.length === 0){
         console.log('Puzzle solved!');
-        setTimeout(loadPuzzle, 600);
+        setTimeout(() => fetchPuzzles(currentMinRating, currentMaxRating), 600);
     }
 };
 
@@ -86,7 +106,7 @@ function solvePuzzle(){
        }
     }else{
         console.log('Puzzle solved!');
-        checkAndLoadNewPuzzle();
+        fetchPuzzles(currentMinRating, currentMaxRating);
     }
 };
 
@@ -183,10 +203,19 @@ board = Chessboard('myBoard', {
 });
 
 // Load the initial puzzle on page load
-changeBoardTheme('#EAE8E7', '#326548');
-loadPuzzle();
+changeBoardTheme('#7D9EB2', '#D7E1E7');
+fetchPuzzles();
 
 // Bind a click event to load a new puzzle
-document.getElementById('newPuzzle').addEventListener('click', loadPuzzle);
+document.getElementById('newPuzzle').addEventListener('click', fetchPuzzles);
 document.getElementById('showNextMove').addEventListener('click', showNextMove);
 document.getElementById('solvePuzzle').addEventListener('click', solvePuzzle);
+document.getElementById('loadRatedPuzzles').addEventListener('click', loadRatedPuzzles);
+
+document.getElementById('rating-min').oninvalid = function(event) {
+    event.target.setCustomValidity('Minimum rating must be at least 300.');
+};
+document.getElementById('rating-max').oninvalid = function(event) {
+    event.target.setCustomValidity('Maximum rating must not exceed 3500.');
+};
+

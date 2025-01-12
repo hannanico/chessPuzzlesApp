@@ -6,7 +6,7 @@ import pandas as pd
 import json
 import io
 import os
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 import time
 
 # Initialize Flask application
@@ -25,7 +25,7 @@ firebase_admin.initialize_app(cred, {
 })
 
 # Function to randomly select and load a chess puzzle from Firebase
-def load_random_puzzle_part():
+def load_random_puzzle_part(minRating, maxRating):
     #Define the maximum number of retry attempts
     #I had to do all of this mainly because some of the files were not uploaded to the bucket
     #Will fix this in the future
@@ -44,8 +44,16 @@ def load_random_puzzle_part():
             try:
                 data = blob.download_as_text()  # Attempt to download the file
                 puzzles = pd.read_csv(io.StringIO(data))  # Load the data into a DataFrame
-                random_puzzle = puzzles.sample().iloc[0]  # Randomly select a puzzle
-                return random_puzzle
+                puzzles['Rating'] = puzzles['Rating'].astype(int)  # Ensure the rating column is an integer
+
+                # Filter the puzzles based on the rating range
+                filtered_puzzles = puzzles[(puzzles['Rating'] >= minRating) & (puzzles['Rating'] <= maxRating)]
+
+                if filtered_puzzles.empty:
+                    raise Exception("No puzzles found within the specified rating range")
+                else:
+                    random_puzzle = filtered_puzzles.sample().iloc[0].to_dict()
+                    return random_puzzle
             except Exception as e:
                 print(f"Error processing the puzzle file: {e}")
                 attempts += 1
@@ -66,9 +74,12 @@ def index():
 # Define the route to fetch a random puzzle via a GET request
 @app.route('/get-puzzle', methods=['GET'])
 def get_puzzle():
+    minRating = request.args.get('minRating', default=400, type=int)
+    maxRating = request.args.get('maxRating', default=3500, type=int)
+
     try:
         # Load a random puzzle and prepare JSON data for response
-        puzzle = load_random_puzzle_part()
+        puzzle = load_random_puzzle_part(minRating,maxRating)
         puzzle_response = {
             'PuzzleId': str(puzzle['PuzzleId']),
             'FEN': puzzle['FEN'],
