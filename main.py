@@ -6,7 +6,7 @@ import pandas as pd
 import json
 import io
 import os
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, session
 import time
 
 # Initialize Flask application
@@ -84,7 +84,7 @@ def get_puzzle():
             'PuzzleId': str(puzzle['PuzzleId']),
             'FEN': puzzle['FEN'],
             'Moves': puzzle['Moves'],
-            'Rating': int(puzzle['Rating'])  # Ensure the rating is sent as an integer
+            'Rating': int(puzzle['Rating']),
         }
         return jsonify(puzzle_response)
     except Exception as e:

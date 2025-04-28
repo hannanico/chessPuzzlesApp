@@ -6,6 +6,7 @@
     <title>Chess Puzzle</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"
         integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2"
         crossorigin="anonymous"></script>
@@ -13,7 +14,6 @@
     <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"
         integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD"
         crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js" integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.11.0/chess.min.js"></script>
 </head>
 <body>
@@ -24,20 +24,34 @@
         <div id="sidebar" class="sidebar">
 
             <p class="turnInfoP"><span id="turn-info"></span></p>
-            <p class="ratingInfoP"><span id="rating-info"></span></p>
+            <div class="info-container">
+                <p class="ratingInfoP"><span id="rating-info"></span></p>
+                <div class="timer-container">
+                    <i class="fas fa-clock clock-icon"></i>
+                    <p class="timerP"><span id="timer">00:00</span></p>
+                </div>
+            </div>
             <p id="move-info"></p> 
-            <button id="newPuzzle">Load new puzzle</button>
-            <button id="showNextMove">Show next move</button>
-            <button id="solvePuzzle">Solve puzzle</button>
+
+            <div class="buttonGroup"> 
+                <button class="button" id="newPuzzle">Load new puzzle</button>
+                <button class="button" id="showNextMove">Show next move</button>
+                <button class="button" id="showMovingPiece">Hint piece</button>
+                <button class="button" id="solvePuzzle">Solve puzzle</button>
+            </div>
 
             <div class="ratingFilter">
-                <label for="ratingMin">Minimum Rating:</label>
-                <input type="number" id="ratingMin" name="ratingMin" placeholder="e.g., 400">
+                <label for="minRating">Minimum Rating:</label>
+                <input type="number" id="minRating" name="minRating" placeholder="e.g., 400">
 
-                <label for="ratingMax">Maximum Rating:</label>
-                <input type="number" id="ratingMax" name="ratingMax" placeholder="e.g., 3500">
+                <label for="maxRating">Maximum Rating:</label>
+                <input type="number" id="maxRating" name="maxRating" placeholder="e.g., 3500">
 
                 <button id="loadRatedPuzzles">Load rated puzzles</button>
+            </div>
+
+            <div class="puzzle-counter">
+                Puzzles solved: <span id="puzzles-completed">0</span>
             </div>
 
         </div>

@@ -3,8 +3,90 @@ var game = new Chess();
 var solutionMoves = [];
 var userColor = 'white';
 
+var circleId = null;
+
 var currentMinRating = 400;
 var currentMaxRating = 3500;
+
+var cyanColor = ' #08a4a7';
+var darkColor = ' #7D9EB2'; 
+var lightColor = ' #D7E1E7';
+
+let puzzlesCompleted = 0;
+const PUZZLES_COMPLETED_KEY = 'chess_puzzles_completed';
+
+let timerInterval;
+let seconds = 0;
+
+function startTimer() {
+    resetTimer(); // Reset first if needed
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+    seconds++;
+    const mins = Math.floor(seconds/60).toString().padStart(2,'0');
+    const secs = (seconds%60).toString().padStart(2,'0');
+    document.getElementById('timer').textContent = `${mins}:${secs}`;
+    
+    // Optional: Rotate clock 6 degrees per second (full rotation per minute)
+    document.querySelector('.clock-icon').style.transform = `rotate(${seconds * 90}deg)`;
+}
+
+function resetTimer() {
+    clearInterval(timerInterval);
+    seconds = 0;
+    document.getElementById('timer').textContent = '00:00';
+    document.querySelector('.clock-icon').style.transform = 'rotate(0deg)';
+}
+
+// Initialize counter on page load
+function initPuzzleCounter() {
+    try {
+        // Try to load from localStorage
+        const savedCount = localStorage.getItem(PUZZLES_COMPLETED_KEY);
+        if (savedCount) {
+            puzzlesCompleted = parseInt(savedCount);
+        }
+    } catch (e) {
+        console.warn("Couldn't access localStorage:", e);
+    }
+    updatePuzzleCounter();
+}
+
+// Update the counter display
+function updatePuzzleCounter() {
+    document.getElementById('puzzles-completed').textContent = puzzlesCompleted;
+    
+    // Optional visual feedback
+    const counterEl = document.getElementById('puzzles-completed');
+    counterEl.classList.add('counter-updated');
+    setTimeout(() => counterEl.classList.remove('counter-updated'), 300);
+}
+
+// Increment counter and save
+function incrementPuzzleCounter() {
+    puzzlesCompleted++;
+    
+    try {
+        localStorage.setItem(PUZZLES_COMPLETED_KEY, puzzlesCompleted);
+    } catch (e) {
+        console.warn("Couldn't save to localStorage:", e);
+    }
+    
+    updatePuzzleCounter();
+}
+
+// Reset counter (optional)
+function resetPuzzleCounter() {
+    puzzlesCompleted = 0;
+    try {
+        localStorage.removeItem(PUZZLES_COMPLETED_KEY);
+    } catch (e) {
+        console.warn("Couldn't clear localStorage:", e);
+    }
+    updatePuzzleCounter();
+}
 
 // Updates the sidebar with current turn, puzzle rating, and clears previous move info
 function updateSidebar(turn, rating) {
@@ -15,11 +97,20 @@ function updateSidebar(turn, rating) {
 
 // Displays an error message if an invalid move is made
 function displayInvalidMove() {
-    document.getElementById('move-info').textContent = 'Invalid move, please try again.';
+    document.getElementById('move-info').textContent = 'Wrong move, try again!';
 }
 
 function validateRatingInput(minRating, maxRating){
-    if(minRating < 400 || minRating > 3500 || minRating > maxRating){
+    if ((minRating === '' || minRating === null) && (maxRating === '' || maxRating === null)) {
+        return true;
+    }
+
+    //Have to convert to numbers because of the way javascript handles inputs
+    minRating = Number(minRating);
+    maxRating = Number(maxRating);
+
+    // Check valid ranges
+    if (minRating < 400 || maxRating > 3500 || minRating > maxRating) {
         alert('Please enter a minimum rating of at least 400 and a maximum rating no greater than 3500. The minimum rating must also be less than the maximum rating.');
         return false;
     }
@@ -45,18 +136,22 @@ function fetchPuzzles(minRating, maxRating) {
 
             // Ensure the board orientation is correct for the player
             setBoardOrientation();
-            makeMachineMove();  // Make the computer's move if it's their turn
+            // Make the computer's move if it's their turn
+            makeMachineMove();
+            // Start the timer for the puzzle
+            startTimer();
         })
         .catch(error => {
             console.error('Error loading puzzle:', error);
         });
 }
 
-function loadRatedPuzzles(){
-    currentMinRating = document.getElementById('ratingMin').value;
-    currentMaxRating = document.getElementById('ratingMax').value;
 
-    if(validateRatingInput(ratingMin, ratingMax)){
+function loadRatedPuzzles(){
+    currentMinRating = document.getElementById('minRating').value;
+    currentMaxRating = document.getElementById('maxRating').value;
+
+    if(validateRatingInput(currentMinRating, currentMaxRating)){
         fetchPuzzles(currentMinRating, currentMaxRating);
     }
 };
@@ -64,6 +159,8 @@ function loadRatedPuzzles(){
 function checkAndLoadNewPuzzle(){
     if(solutionMoves.length === 0){
         console.log('Puzzle solved!');
+        document.getElementById('move-info').textContent = 'Good job! Puzzle solved!';
+        incrementPuzzleCounter();
         setTimeout(() => fetchPuzzles(currentMinRating, currentMaxRating), 600);
     }
 };
@@ -72,6 +169,11 @@ function executeMove(move) {
     var from = move.substring(0, 2);
     var to = move.substring(2, 4);
     var moveObject = game.move({ from, to, promotion: 'q' });
+
+    const styleElement = document.getElementById('showMovingPiece-style');
+        if (styleElement) {
+            styleElement.innerHTML = ''; // Clear all styles, effectively removing the highlight
+        }
 
     if (moveObject === null) {
         console.error('Invalid move:', move);
@@ -96,6 +198,31 @@ function showNextMove(){
         checkAndLoadNewPuzzle();
     }
 };
+
+function showMovingPiece() {
+    if (solutionMoves.length > 0) {
+        const move = solutionMoves[0];  // Get the next move from the solution
+        const currentSquare = move.substring(0, 2); // The current square is the 'from' square (e.g., 'e2')
+
+        // Create a style tag if it doesn't already exist
+        const styleElement = document.getElementById('showMovingPiece-style');
+        if (!styleElement) {
+            const style = document.createElement('style');
+            style.id = 'showMovingPiece-style';
+            document.head.appendChild(style);
+        }
+
+        // Use the square class to specifically target the square (e.g., `.square-e2`)
+        const targetSquareClass = `.square-${currentSquare}`;
+
+        // Add CSS to highlight only the targeted square
+        document.getElementById('showMovingPiece-style').innerHTML = `
+            ${targetSquareClass} {
+                background-color: ${cyanColor} !important; /* Highlight the square */
+            }
+        `;
+    }
+}
 
 function solvePuzzle(){
     if(solutionMoves.length > 0){
@@ -135,7 +262,7 @@ function setBoardOrientation() {
 }
 
 // Prevents the player from dragging the opponent's pieces
-function onDragStart(source, piece) {
+function onDragStart(source,piece) {
     if ((userColor === 'white' && piece.search(/^b/) !== -1) || 
         (userColor === 'black' && piece.search(/^w/) !== -1)) {
         return false;
@@ -151,16 +278,20 @@ function onSnapEnd() {
     board.position(game.fen());
 }
 
-function changeBoardTheme(lightColor, darkColor) {
-    const styleElement = document.getElementById('dynamic-board-style');
+function changeBoardAndNotationTheme(lightColor, darkColor) {
+    const styleElement = document.getElementById('boardNotation-style');
     if(!styleElement){
         const style = document.createElement('style');
-        style.id = 'dynamic-board-style';
+        style.id = 'boardNotation-style';
         document.head.appendChild(style);
     }
-    document.getElementById('dynamic-board-style').innerHTML = `
-        .white-1e1d7 { background-color: ${lightColor} !important; }
-        .black-3c85d { background-color: ${darkColor} !important; }
+    document.getElementById('boardNotation-style').innerHTML = `
+        .white-1e1d7 
+        { background-color: ${lightColor} !important;
+         color: ${darkColor} !important; }
+        .black-3c85d 
+        { background-color: ${darkColor} !important; 
+        color: ${lightColor} !important; }
     `;
 }
 
@@ -168,6 +299,7 @@ function changeBoardTheme(lightColor, darkColor) {
 board = Chessboard('myBoard', {
     pieceTheme: '/static/img/{piece}.png',
     draggable: true,
+    showNotation:true,
     position: 'start',
     onSnapEnd: onSnapEnd,
     onDrop: function (source, target) {
@@ -183,6 +315,12 @@ board = Chessboard('myBoard', {
             to: target,
             promotion: 'q'  // Automatically promote pawns to a queen
         });
+
+         // Remove the style to reset the highlight
+         const styleElement = document.getElementById('showMovingPiece-style');
+         if (styleElement) {
+             styleElement.innerHTML = ''; // Clear all styles, effectively removing the highlight
+         }
 
         if (move === null) return 'snapback';
 
@@ -203,7 +341,7 @@ board = Chessboard('myBoard', {
 });
 
 // Load the initial puzzle on page load
-changeBoardTheme('#7D9EB2', '#D7E1E7');
+changeBoardAndNotationTheme(lightColor, darkColor);
 fetchPuzzles();
 
 // Bind a click event to load a new puzzle
@@ -211,6 +349,7 @@ document.getElementById('newPuzzle').addEventListener('click', fetchPuzzles);
 document.getElementById('showNextMove').addEventListener('click', showNextMove);
 document.getElementById('solvePuzzle').addEventListener('click', solvePuzzle);
 document.getElementById('loadRatedPuzzles').addEventListener('click', loadRatedPuzzles);
+document.getElementById('showMovingPiece').addEventListener('click', showMovingPiece);
 
 document.getElementById('rating-min').oninvalid = function(event) {
     event.target.setCustomValidity('Minimum rating must be at least 300.');

@@ -2,35 +2,39 @@ body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin-top: 20px;
-    background-color: #141514;
+    background-color: #312e2b;
     color: #858796;
+}
+
+h1{
+    margin-bottom: 4px;
 }
 
 #myBoard {
     margin: 0;
-    width: 500px;
+    width: 45%;
     touch-action: none;
 }
 
 .container {
     display: flex;
-    justify-content: center; /* Center the chessboard + sidebar container horizontally */
-    gap: 20px; /* Spacing between the chessboard and the sidebar */
-    margin: 0 auto; /* Ensure the container itself is centered on the page */
+    justify-content: center;
+    gap: 20px; 
+    margin: 0 auto; 
     padding: 20px;
 }
 
 .sidebar {
-    background-color: #141514; /* Dark background for the sidebar */
-    color: white; /* Light color for text for contrast */
+    background-color: #2d2f2d; 
+    color: white; 
     padding: 10px;
-    border: 2px solid #f5deb3; /* Light cream border */
-    box-shadow: 0px 0px 10px 3px rgba(245, 222, 179, 0.5); /* Subtle shadow for depth */
-    border-radius: 10px; /* Rounded corners for a smoother look */
+    border: 3px solid rgba(0, 0, 0, 0.2); 
+    box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.2); 
+    border-radius: .5rem; 
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 200px;
+    width: 20%;
 }
 
 .sidebar h3{
@@ -42,36 +46,114 @@ button {
     padding: 10px;
 }
 
+.info-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
 .turnInfoP{
-    background-color: #f5deb3; /* Cream background might be too bright, consider a darker shade for contrast */
+    font-size: 1.2em;
+    background-color: #FFFEFE;
     font-weight: bold;
-    color: black; /* Ensuring text color is dark for readability on cream */
+    color: black;
     padding: 10px;
-    border-radius: 5px; /* Optional: adds rounded corners to the background */
-    margin: 10px 0; /* Space above and below */
+    border-radius: 5px;
+    margin: 10px 0; 
+    width: 80%;
 }
 
 .ratingInfoP {
-    font-size: 2em; /* Makes the text larger */
-    color: #f5deb3; /* Cream color text */
+    font-size: 2em; 
+    color: #FFFEFE;
     padding: 5px;
-}
-    
+    text-align: left;
+    }
 
-/* For mobile devices */
+.timerP {
+    margin: 0;
+    text-align: right;
+    font-size: 1.5em;
+}
+
+.timer-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #C3C3C0;
+}
+
+.clock-icon{
+    font-size: 1.5em;
+}
+
+#move-info{
+    margin-bottom: 0;
+}
+
+.buttonGroup{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.button {
+    width: calc(50% - 20px);
+    text-align: center;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    margin: 5px;
+    border: 3px solid rgba(0, 0, 0, 0.2); 
+    box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.2); 
+    border-radius: .5rem; 
+}
+
+.button:hover {
+    background-color: #C3C3C0;
+    color: white;
+}
+
+#loadRatedPuzzles{
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    margin: 5px;
+    border: 3px solid rgba(0, 0, 0, 0.2); 
+    box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.2); 
+    border-radius: .5rem; 
+}
+
+#loadRatedPuzzles:hover {
+    background-color: #C3C3C0;
+    color: white;
+}
+
+.ratingFilter{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 @media (max-width: 767px) {
     .container {
         display: block;
     }
 
     #myBoard {
-        width: 100%; /* Smaller board for mobile */
+        width: 100%; 
         touch-action: none;
     }
 
     .sidebar {
         margin-top: 20px;
-        width: 100%; /* Sidebar spans full width below the board */
+        width: 100%;
         padding: 0;
     }
 }
