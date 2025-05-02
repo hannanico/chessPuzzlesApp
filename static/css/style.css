@@ -6,6 +6,98 @@ body {
     color: #858796;
 }
 
+.fa-circle-info{
+    color: #C3C3C0;
+}
+
+.fa-circle-info:hover{
+    color: #F0F0F0;
+}
+
+.icon_hint_random .hint_random {
+    visibility: hidden;
+    font-family: Arial, sans-serif;
+    width: 13%;
+    background-color: #F0F0F0;
+    color: black;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+  
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    bottom: 700px;
+    left: 35%;
+}
+
+.icon_hint_random:hover .hint_random{
+    visibility: visible;
+}
+
+.icon_hint_custom .hint_custom {
+    visibility: hidden;
+    font-family: Arial, sans-serif;
+    width: 13%;
+    background-color: #F0F0F0;
+    color: black;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+  
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    bottom: 700px;
+    left: 52%;
+}
+
+.icon_hint_custom:hover .hint_custom{
+    visibility: visible;
+}
+
+.icon_hint_rush .hint_rush {
+    visibility: hidden;
+    font-family: Arial, sans-serif;
+    width: 13%;
+    background-color: #F0F0F0;
+    color: black;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+  
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    bottom: 563px;
+    left: 35%;
+}
+
+.icon_hint_rush:hover .hint_rush{
+    visibility: visible;
+}
+
+.icon_hint_daily .hint_daily {
+    visibility: hidden;
+    font-family: Arial, sans-serif;
+    width: 13%;
+    background-color: #F0F0F0;
+    color: black;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+  
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    bottom: 563px;
+    left: 52%;
+}
+
+.icon_hint_daily:hover .hint_daily{
+    visibility: visible;
+}
+
 h1{
     margin-bottom: 4px;
 }
@@ -109,7 +201,7 @@ button {
     border-radius: .5rem; 
 }
 
-.button:hover {
+.button:hover  {
     background-color: #C3C3C0;
     color: white;
 }

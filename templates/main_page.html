@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Puzzles</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1 class="main-title">Main page</h1>
+    <div class="container">
+        <div class="menu-selection">
+            <div class="buttonGroup"> 
+                <button type="button" onclick="window.location.href='{{url_for('random_puzzles')}}'" class="button button_random" id="randomPuzzles">Random Puzzles <i class="fa-solid fa-circle-info icon_hint_random"><span class="hint_random">The name does all of the work.</span></i></button>
+                <button type="button" onclick="window.location.href='{{url_for('custom_puzzles')}}'" class="button buttom_custom" id="customPuzzles">Custom Puzzles <i class="fa-solid fa-circle-info icon_hint_custom"><span class="hint_custom">Customize the ratings of the puzzles.</span></i></button>
+                <button type="button" onclick="window.location.href='{{url_for('puzzle_rush')}}'"  class="button buttom_rush" id="puzzleRush">Puzzle Rush <i class="fa-solid fa-circle-info icon_hint_rush"><span class="hint_rush">Three gamemodes of survival.</span></i></button>
+                <button type="button" onclick="window.location.href='{{url_for('daily_puzzle')}}'"  class="button button_daily" id="dailyPuzzle">Daily Puzzle <i class="fa-solid fa-circle-info icon_hint_daily"><span class="hint_daily">Different regular daily puzzle.</span></i></button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

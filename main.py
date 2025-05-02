@@ -65,11 +65,31 @@ def load_random_puzzle_part(minRating, maxRating):
 
     raise Exception("Failed to load a puzzle after several attempts")
 
-# Define the route for the index page
+# Define the route for the main page
 @app.route('/')
-def index():
+def main_page():
     # Serve the main page to the client
-    return render_template('index.html')
+    return render_template('main_page.html')
+
+@app.route('/random_puzzles')
+def random_puzzles():
+    # Serve the random puzzles page to the client
+    return render_template('random_puzzles.html')
+
+@app.route('/custom_puzzles')
+def custom_puzzles():
+    # Serve the custom puzzles page to the client
+    return render_template('custom_puzzles.html')
+
+@app.route('/puzzle_rush')
+def puzzle_rush():
+    # Serve the puzzle rush page to the client
+    return render_template('puzzle_rush.html')
+
+@app.route('/daily_puzzle')
+def daily_puzzle():
+    # Serve the daily puzzle page to the client
+    return render_template('daily_puzzle.html')
 
 # Define the route to fetch a random puzzle via a GET request
 @app.route('/get-puzzle', methods=['GET'])
