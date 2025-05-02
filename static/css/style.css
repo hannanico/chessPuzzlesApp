@@ -239,13 +239,17 @@ input::-webkit-inner-spin-button {
     }
 
     #myBoard {
-        width: 100%; 
+        width: 100%;
         touch-action: none;
     }
 
+    #move-info {
+        margin: 0;
+    }
+
     .sidebar {
-        margin-top: 20px;
-        width: 100%;
+        margin-top: 0px;
+        width: 98%;
         padding: 0;
     }
 }

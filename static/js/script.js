@@ -2,6 +2,8 @@ var board = null;
 var game = new Chess();
 var solutionMoves = [];
 var userColor = 'white';
+const loadRatedPuzzlesButton = document.getElementById('loadRatedPuzzles');
+const newPuzzleButton = document.getElementById('newPuzzle');
 
 var circleId = null;
 
@@ -146,7 +148,6 @@ function fetchPuzzles(minRating, maxRating) {
         });
 }
 
-
 function loadRatedPuzzles(){
     currentMinRating = document.getElementById('minRating').value;
     currentMaxRating = document.getElementById('maxRating').value;
@@ -240,7 +241,12 @@ function solvePuzzle(){
 // Validates the user's move against the expected move
 function validateMove(source, target) {
     var expectedMove = solutionMoves[0];
+
     var move = source + target;
+    const piece = game.get(source);
+    if(piece && piece.type === 'p' && (target[1] === '8' || target[1] === '1')){
+        move += 'q';  // Add promotion to queen
+    }
     return move === expectedMove;
 }
 
@@ -345,10 +351,14 @@ changeBoardAndNotationTheme(lightColor, darkColor);
 fetchPuzzles();
 
 // Bind a click event to load a new puzzle
-document.getElementById('newPuzzle').addEventListener('click', fetchPuzzles);
+if(loadRatedPuzzlesButton){
+    document.getElementById('loadRatedPuzzles').addEventListener('click', loadRatedPuzzles);
+}
+if(newPuzzleButton){
+    document.getElementById('newPuzzle').addEventListener('click', fetchPuzzles);
+}
 document.getElementById('showNextMove').addEventListener('click', showNextMove);
 document.getElementById('solvePuzzle').addEventListener('click', solvePuzzle);
-document.getElementById('loadRatedPuzzles').addEventListener('click', loadRatedPuzzles);
 document.getElementById('showMovingPiece').addEventListener('click', showMovingPiece);
 
 document.getElementById('rating-min').oninvalid = function(event) {
