@@ -2,8 +2,10 @@ var board = null;
 var game = new Chess();
 var solutionMoves = [];
 var userColor = 'white';
+
 const loadRatedPuzzlesButton = document.getElementById('loadRatedPuzzles');
 const newPuzzleButton = document.getElementById('newPuzzle');
+const puzzlesCompleted = document.getElementById('puzzles-completed');
 
 var circleId = null;
 
@@ -13,9 +15,6 @@ var currentMaxRating = 3500;
 var cyanColor = ' #08a4a7';
 var darkColor = ' #7D9EB2'; 
 var lightColor = ' #D7E1E7';
-
-let puzzlesCompleted = 0;
-const PUZZLES_COMPLETED_KEY = 'chess_puzzles_completed';
 
 let timerInterval;
 let seconds = 0;
@@ -42,52 +41,16 @@ function resetTimer() {
     document.querySelector('.clock-icon').style.transform = 'rotate(0deg)';
 }
 
-// Initialize counter on page load
-function initPuzzleCounter() {
-    try {
-        // Try to load from localStorage
-        const savedCount = localStorage.getItem(PUZZLES_COMPLETED_KEY);
-        if (savedCount) {
-            puzzlesCompleted = parseInt(savedCount);
-        }
-    } catch (e) {
-        console.warn("Couldn't access localStorage:", e);
-    }
-    updatePuzzleCounter();
+function incrementPuzzlesSolved() {
+    let currentCount = parseInt(localStorage.getItem('puzzles-completed') || '0', 10);
+    localStorage.setItem('puzzles-completed', (currentCount + 1).toString());
+
+    displayPuzzlesCompleted();
 }
 
-// Update the counter display
-function updatePuzzleCounter() {
-    document.getElementById('puzzles-completed').textContent = puzzlesCompleted;
-    
-    // Optional visual feedback
-    const counterEl = document.getElementById('puzzles-completed');
-    counterEl.classList.add('counter-updated');
-    setTimeout(() => counterEl.classList.remove('counter-updated'), 300);
-}
-
-// Increment counter and save
-function incrementPuzzleCounter() {
-    puzzlesCompleted++;
-    
-    try {
-        localStorage.setItem(PUZZLES_COMPLETED_KEY, puzzlesCompleted);
-    } catch (e) {
-        console.warn("Couldn't save to localStorage:", e);
-    }
-    
-    updatePuzzleCounter();
-}
-
-// Reset counter (optional)
-function resetPuzzleCounter() {
-    puzzlesCompleted = 0;
-    try {
-        localStorage.removeItem(PUZZLES_COMPLETED_KEY);
-    } catch (e) {
-        console.warn("Couldn't clear localStorage:", e);
-    }
-    updatePuzzleCounter();
+function displayPuzzlesCompleted(){
+    const count = localStorage.getItem('puzzles-completed') || '0';
+    puzzlesCompleted.textContent = count;
 }
 
 // Updates the sidebar with current turn, puzzle rating, and clears previous move info
@@ -161,7 +124,7 @@ function checkAndLoadNewPuzzle(){
     if(solutionMoves.length === 0){
         console.log('Puzzle solved!');
         document.getElementById('move-info').textContent = 'Good job! Puzzle solved!';
-        incrementPuzzleCounter();
+        incrementPuzzlesSolved();
         setTimeout(() => fetchPuzzles(currentMinRating, currentMaxRating), 600);
     }
 };
@@ -348,6 +311,7 @@ board = Chessboard('myBoard', {
 
 // Load the initial puzzle on page load
 changeBoardAndNotationTheme(lightColor, darkColor);
+displayPuzzlesCompleted();
 fetchPuzzles();
 
 // Bind a click event to load a new puzzle
