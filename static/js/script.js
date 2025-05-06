@@ -1,3 +1,7 @@
+import {startTimer} from "../js/timer.js";
+import {incrementPuzzlesSolved, displayPuzzlesCompleted} from "../js/localPuzzleData.js";
+import { cyanColor, darkColor, lightColor, updateSidebar, displayInvalidMove, changeBoardAndNotationTheme } from "../js/ui.js";
+
 var board = null;
 var game = new Chess();
 var solutionMoves = [];
@@ -5,65 +9,9 @@ var userColor = 'white';
 
 const loadRatedPuzzlesButton = document.getElementById('loadRatedPuzzles');
 const newPuzzleButton = document.getElementById('newPuzzle');
-const puzzlesCompleted = document.getElementById('puzzles-completed');
-
-var circleId = null;
 
 var currentMinRating = 400;
 var currentMaxRating = 3500;
-
-var cyanColor = ' #08a4a7';
-var darkColor = ' #7D9EB2'; 
-var lightColor = ' #D7E1E7';
-
-let timerInterval;
-let seconds = 0;
-
-function startTimer() {
-    resetTimer(); // Reset first if needed
-    timerInterval = setInterval(updateTimer, 1000);
-}
-
-function updateTimer() {
-    seconds++;
-    const mins = Math.floor(seconds/60).toString().padStart(2,'0');
-    const secs = (seconds%60).toString().padStart(2,'0');
-    document.getElementById('timer').textContent = `${mins}:${secs}`;
-    
-    // Optional: Rotate clock 6 degrees per second (full rotation per minute)
-    document.querySelector('.clock-icon').style.transform = `rotate(${seconds * 90}deg)`;
-}
-
-function resetTimer() {
-    clearInterval(timerInterval);
-    seconds = 0;
-    document.getElementById('timer').textContent = '00:00';
-    document.querySelector('.clock-icon').style.transform = 'rotate(0deg)';
-}
-
-function incrementPuzzlesSolved() {
-    let currentCount = parseInt(localStorage.getItem('puzzles-completed') || '0', 10);
-    localStorage.setItem('puzzles-completed', (currentCount + 1).toString());
-
-    displayPuzzlesCompleted();
-}
-
-function displayPuzzlesCompleted(){
-    const count = localStorage.getItem('puzzles-completed') || '0';
-    puzzlesCompleted.textContent = count;
-}
-
-// Updates the sidebar with current turn, puzzle rating, and clears previous move info
-function updateSidebar(turn, rating) {
-    document.getElementById('turn-info').textContent = turn === 'w' ? 'Black to move' : 'White to move';
-    document.getElementById('rating-info').textContent = rating;
-    document.getElementById('move-info').textContent = '';  // Clear any previous move info
-}
-
-// Displays an error message if an invalid move is made
-function displayInvalidMove() {
-    document.getElementById('move-info').textContent = 'Wrong move, try again!';
-}
 
 function validateRatingInput(minRating, maxRating){
     if ((minRating === '' || minRating === null) && (maxRating === '' || maxRating === null)) {
@@ -81,6 +29,7 @@ function validateRatingInput(minRating, maxRating){
     }
     return true
 }
+
 
 // Fetches and loads a new puzzle from the server
 function fetchPuzzles(minRating, maxRating) {
@@ -213,23 +162,6 @@ function validateMove(source, target) {
     return move === expectedMove;
 }
 
-// Determines the user's color based on the FEN string
-function setUserColorFromFEN(fen) {
-    var parts = fen.split(' ');
-    var activeColor = parts[1];
-
-    if (activeColor === 'w') {
-        userColor = 'black';  // User plays as black
-    } else {
-        userColor = 'white';  // User plays as white
-    }
-}
-
-// Sets the orientation of the board based on the user's color
-function setBoardOrientation() {
-    board.orientation(userColor);
-}
-
 // Prevents the player from dragging the opponent's pieces
 function onDragStart(source,piece) {
     if ((userColor === 'white' && piece.search(/^b/) !== -1) || 
@@ -245,23 +177,6 @@ function onDragEnd() {
 
 function onSnapEnd() {
     board.position(game.fen());
-}
-
-function changeBoardAndNotationTheme(lightColor, darkColor) {
-    const styleElement = document.getElementById('boardNotation-style');
-    if(!styleElement){
-        const style = document.createElement('style');
-        style.id = 'boardNotation-style';
-        document.head.appendChild(style);
-    }
-    document.getElementById('boardNotation-style').innerHTML = `
-        .white-1e1d7 
-        { background-color: ${lightColor} !important;
-         color: ${darkColor} !important; }
-        .black-3c85d 
-        { background-color: ${darkColor} !important; 
-        color: ${lightColor} !important; }
-    `;
 }
 
 // Initialize the chessboard configuration
@@ -308,6 +223,24 @@ board = Chessboard('myBoard', {
     onDragStart: onDragStart,
     onDragEnd: onDragEnd
 });
+
+// Sets the orientation of the board based on the user's color
+function setBoardOrientation() {
+    board.orientation(userColor);
+}
+
+// Determines the user's color based on the FEN string
+function setUserColorFromFEN(fen) {
+    var parts = fen.split(' ');
+    console.log(`activeColor ${parts[1]}`);
+    var activeColor = parts[1];
+
+    if (activeColor === 'w') {
+        userColor = 'black';  // User plays as black
+    } else {
+        userColor = 'white';  // User plays as white
+    }
+}
 
 // Load the initial puzzle on page load
 changeBoardAndNotationTheme(lightColor, darkColor);
