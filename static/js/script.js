@@ -1,18 +1,15 @@
 import {startTimer} from "../js/timer.js";
 import {incrementPuzzlesSolved, displayPuzzlesCompleted} from "../js/localPuzzleData.js";
-import { cyanColor, darkColor, lightColor, updateSidebar, displayInvalidMove, changeBoardAndNotationTheme } from "../js/ui.js";
+import { darkColor, lightColor, updateSidebar, displayInvalidMove, changeBoardAndNotationTheme, setUserColorFromFEN, userColor,clearHighlightedSquares, showMovingPiece } from "../js/ui.js";
 
 var board = null;
 var game = new Chess();
 var solutionMoves = [];
-var userColor = 'white';
-
-const loadRatedPuzzlesButton = document.getElementById('loadRatedPuzzles');
-const newPuzzleButton = document.getElementById('newPuzzle');
 
 var currentMinRating = 400;
 var currentMaxRating = 3500;
 
+//I can move this function to a separate file if needed
 function validateRatingInput(minRating, maxRating){
     if ((minRating === '' || minRating === null) && (maxRating === '' || maxRating === null)) {
         return true;
@@ -30,7 +27,6 @@ function validateRatingInput(minRating, maxRating){
     return true
 }
 
-
 // Fetches and loads a new puzzle from the server
 function fetchPuzzles(minRating, maxRating) {
     fetch(`get-puzzle?minRating=${minRating}&maxRating=${maxRating}`)
@@ -41,15 +37,14 @@ function fetchPuzzles(minRating, maxRating) {
             // Set up the chessboard with the new puzzle
             game.load(data.FEN);
             board.position(data.FEN);
-            setUserColorFromFEN(data.FEN);
+            setUserColorFromFEN(data.FEN.split(' ')[1]);
             updateSidebar(data.FEN.split(' ')[1], data.Rating);
-
+         
             // Store the solution moves
             solutionMoves = data.Moves.split(' ');
             console.log('Puzzle Moves:', solutionMoves);
-
-            // Ensure the board orientation is correct for the player
-            setBoardOrientation();
+            
+            board.orientation(userColor);
             // Make the computer's move if it's their turn
             makeMachineMove();
             // Start the timer for the puzzle
@@ -69,30 +64,18 @@ function loadRatedPuzzles(){
     }
 };
 
-function checkAndLoadNewPuzzle(){
-    if(solutionMoves.length === 0){
-        console.log('Puzzle solved!');
-        document.getElementById('move-info').textContent = 'Good job! Puzzle solved!';
-        incrementPuzzlesSolved();
-        setTimeout(() => fetchPuzzles(currentMinRating, currentMaxRating), 600);
-    }
-};
-
 function executeMove(move) {
+    clearHighlightedSquares();
+
     var from = move.substring(0, 2);
     var to = move.substring(2, 4);
     var moveObject = game.move({ from, to, promotion: 'q' });
-
-    const styleElement = document.getElementById('showMovingPiece-style');
-        if (styleElement) {
-            styleElement.innerHTML = ''; // Clear all styles, effectively removing the highlight
-        }
 
     if (moveObject === null) {
         console.error('Invalid move:', move);
         return false;
     } else {
-        board.position(game.fen());  // Update board to reflect move
+        onSnapEnd();  // Update board to reflect move
         console.log('Move executed:', move);
         return true;
     }
@@ -101,41 +84,26 @@ function executeMove(move) {
 // Executes the computer's move from the solution sequence
 function makeMachineMove() {
     if (solutionMoves.length > 0 && executeMove(solutionMoves.shift())) {
-        checkAndLoadNewPuzzle();
+        if(solutionMoves.length === 0){
+            console.log('Puzzle solved!');
+            document.getElementById('move-info').textContent = 'Good job! Puzzle solved!';
+            incrementPuzzlesSolved();
+            setTimeout(() => fetchPuzzles(currentMinRating, currentMaxRating), 200);
+        }
     }
 }
 
 function showNextMove(){
     if (solutionMoves.length > 0 && executeMove(solutionMoves.shift())) {
         setTimeout(makeMachineMove, 650); 
-        checkAndLoadNewPuzzle();
+        if(solutionMoves.length === 0){
+            console.log('Puzzle solved!');
+            document.getElementById('move-info').textContent = 'Good job! Puzzle solved!';
+            incrementPuzzlesSolved();
+            setTimeout(() => fetchPuzzles(currentMinRating, currentMaxRating), 200);
+        }
     }
 };
-
-function showMovingPiece() {
-    if (solutionMoves.length > 0) {
-        const move = solutionMoves[0];  // Get the next move from the solution
-        const currentSquare = move.substring(0, 2); // The current square is the 'from' square (e.g., 'e2')
-
-        // Create a style tag if it doesn't already exist
-        const styleElement = document.getElementById('showMovingPiece-style');
-        if (!styleElement) {
-            const style = document.createElement('style');
-            style.id = 'showMovingPiece-style';
-            document.head.appendChild(style);
-        }
-
-        // Use the square class to specifically target the square (e.g., `.square-e2`)
-        const targetSquareClass = `.square-${currentSquare}`;
-
-        // Add CSS to highlight only the targeted square
-        document.getElementById('showMovingPiece-style').innerHTML = `
-            ${targetSquareClass} {
-                background-color: ${cyanColor} !important; /* Highlight the square */
-            }
-        `;
-    }
-}
 
 function solvePuzzle(){
     if(solutionMoves.length > 0){
@@ -185,6 +153,8 @@ board = Chessboard('myBoard', {
     draggable: true,
     showNotation:true,
     position: 'start',
+    snapSpeed: 'fast',
+    moveSpeed: 'fast',
     onSnapEnd: onSnapEnd,
     onDrop: function (source, target) {
         if (!validateMove(source, target)) {
@@ -200,16 +170,12 @@ board = Chessboard('myBoard', {
             promotion: 'q'  // Automatically promote pawns to a queen
         });
 
-         // Remove the style to reset the highlight
-         const styleElement = document.getElementById('showMovingPiece-style');
-         if (styleElement) {
-             styleElement.innerHTML = ''; // Clear all styles, effectively removing the highlight
-         }
+        clearHighlightedSquares();
 
         if (move === null) return 'snapback';
 
         console.log('Move made:', move);
-        board.position(game.fen());
+        onSnapEnd()
         solutionMoves.shift();
 
         // Execute machine's move if there are any left
@@ -218,45 +184,29 @@ board = Chessboard('myBoard', {
         }
 
         // Load a new puzzle when the current one is solved
-        checkAndLoadNewPuzzle();
+        if(solutionMoves.length === 0){
+            console.log('Puzzle solved!');
+            document.getElementById('move-info').textContent = 'Good job! Puzzle solved!';
+            incrementPuzzlesSolved();
+            setTimeout(() => fetchPuzzles(currentMinRating, currentMaxRating), 200);
+        }
     },
     onDragStart: onDragStart,
     onDragEnd: onDragEnd
 });
-
-// Sets the orientation of the board based on the user's color
-function setBoardOrientation() {
-    board.orientation(userColor);
-}
-
-// Determines the user's color based on the FEN string
-function setUserColorFromFEN(fen) {
-    var parts = fen.split(' ');
-    console.log(`activeColor ${parts[1]}`);
-    var activeColor = parts[1];
-
-    if (activeColor === 'w') {
-        userColor = 'black';  // User plays as black
-    } else {
-        userColor = 'white';  // User plays as white
-    }
-}
 
 // Load the initial puzzle on page load
 changeBoardAndNotationTheme(lightColor, darkColor);
 displayPuzzlesCompleted();
 fetchPuzzles();
 
-// Bind a click event to load a new puzzle
-if(loadRatedPuzzlesButton){
-    document.getElementById('loadRatedPuzzles').addEventListener('click', loadRatedPuzzles);
-}
-if(newPuzzleButton){
-    document.getElementById('newPuzzle').addEventListener('click', fetchPuzzles);
-}
+document.getElementById('loadRatedPuzzles')?.addEventListener('click', loadRatedPuzzles);
+document.getElementById('newPuzzle')?.addEventListener('click', fetchPuzzles);
 document.getElementById('showNextMove').addEventListener('click', showNextMove);
 document.getElementById('solvePuzzle').addEventListener('click', solvePuzzle);
-document.getElementById('showMovingPiece').addEventListener('click', showMovingPiece);
+document.getElementById('showMovingPiece').addEventListener('click', () => {
+    showMovingPiece(solutionMoves);
+});
 
 document.getElementById('rating-min').oninvalid = function(event) {
     event.target.setCustomValidity('Minimum rating must be at least 300.');
