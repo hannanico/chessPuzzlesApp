@@ -5,8 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Puzzle Rush</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"
+        integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.11.0/chess.min.js"></script>
 </head>
 <body>
-    <h1>Not ready yet</h1>
+    <h1>Puzzle Rush</h1>
+    
+    <!-- Game Mode Selection Screen -->
+    <div id="modeSelection" class="container">
+        <div class="mode-selection">
+            <h2>Select Game Mode</h2>
+            <div class="buttonGroup">
+                <button id="threeMinMode" class="button mode-button">
+                    <h3>3 Minute Rush</h3>
+                    <p>Solve as many puzzles as you can in 3 minutes!</p>
+                    <p>3 wrong moves allowed</p>
+                </button>
+                <button id="fiveMinMode" class="button mode-button">
+                    <h3>5 Minute Rush</h3>
+                    <p>Solve as many puzzles as you can in 5 minutes!</p>
+                    <p>3 wrong moves allowed</p>
+                </button>
+                <button id="survivalMode" class="button mode-button">
+                    <h3>Survival Mode</h3>
+                    <p>Solve puzzles until you make 3 mistakes!</p>
+                    <p>No time limit</p>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen (initially hidden) -->
+    <div id="gameScreen" class="container" style="display: none;">
+        <div id="myBoard" style="width: 400px; height: 400px;"></div>
+        <div id="sidebar" class="sidebar">
+            <div class="info-container">
+                <div class="timer-container">
+                    <i class="fas fa-clock clock-icon"></i>
+                    <p class="timerP"><span id="timer">00:00</span></p>
+                </div>
+                <div class="lives-container">
+                    <i class="fas fa-heart heart-icon"></i>
+                    <span id="lives">3</span>
+                </div>
+            </div>
+            <div class="score-container">
+                <p>Puzzles Solved: <span id="puzzles-solved">0</span></p>
+            </div>
+            <p id="move-info"></p>
+        </div>
+    </div>
+
+    <script type="module" src="{{ url_for('static', filename='js/puzzleRush.js') }}"></script>
 </body>
 </html>

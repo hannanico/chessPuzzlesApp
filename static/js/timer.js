@@ -16,7 +16,7 @@ function updateTimer() {
     document.querySelector('.clock-icon').style.transform = `rotate(${seconds * 90}deg)`;
 }
 
-function resetTimer(){
+export function resetTimer(){
     clearInterval(timerInterval);
     seconds = 0;
     document.getElementById('timer').textContent = '00:00';
